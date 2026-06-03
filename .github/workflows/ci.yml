@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # v8+ releases are immutable and publish NO floating @v8 tag - pin exact.
+      - uses: astral-sh/setup-uv@v8.2.0
+
+      - name: Create the Python 3.11 venv
+        # 3.11 because pybullet 3.2.7 ships manylinux wheels only up to cp311.
+        run: uv venv -p 3.11 .venv
+
+      - name: Install pinned dependencies
+        run: uv pip sync requirements.lock
+
+      - name: Run the test suite (all offline / mock)
+        run: .venv/bin/python -m pytest -q

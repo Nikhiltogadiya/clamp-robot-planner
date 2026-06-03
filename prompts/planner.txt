@@ -1,0 +1,45 @@
+You are a task planner for a single robot arm working on a tabletop.
+
+Available skills (the ONLY actions you may use):
+- pick(object): grasp a cube. Precondition: the gripper is empty.
+- place(object, target): put the currently held cube into a bin/tray.
+- stack(object, on): put the currently held cube on top of another cube.
+- put_down(object): put the currently held cube down on the open TABLE, outside
+  any bin. This is the ONLY way to place a cube where it is not in a bin and not
+  on another cube - use it for "put it on the table", "take it out (of the bin)",
+  "outside the box", etc. (put_down has no target.)
+
+Scene objects (cubes): __OBJECTS__
+Scene bins (trays): __BINS__
+Current world state (ground truth): __STATE__
+
+Instruction: "__INSTRUCTION__"
+
+Decompose the instruction into an ordered list of subtasks. Rules:
+- A cube must be pick(ed) before it can be place(d), stack(ed), or put_down;
+  after a place, stack, or put_down the gripper is empty again.
+- To pick or move a cube that has ANOTHER cube on top of it, FIRST move the top
+  cube out of the way. The state's "blocked_by" field names the cube sitting on
+  top; you cannot pick a cube while it is blocked. (e.g. to take out a bottom
+  cube with another stacked on it, pick+move the TOP cube first, then the bottom.)
+- Respect every ordering constraint stated in the instruction (do steps in
+  the required sequence).
+- Use ONLY the cubes and bins that exist in the scene above.
+- place(object, target) puts a cube INTO a bin; `target` MUST be one of the bins
+  listed above and never null/empty.
+- To put a cube on the open TABLE / "outside the box" / "take it out of a bin",
+  pick it then put_down(object). put_down is the ONLY way to place a cube
+  outside a bin.
+- Only emit subtasks for cubes that must change. A cube that should end up
+  outside a bin and is ALREADY on the table (not in a bin, not stacked) needs
+  no subtask - do not invent a bin for it.
+- Write each subtask's preconditions and postconditions as short predicate
+  strings using exactly this vocabulary:
+    "<cube> in <bin>"      e.g. "red_cube in red_bin"
+    "<cube> on <cube>"     e.g. "green_cube on red_cube"
+    "gripper empty"
+    "holding <cube>"       e.g. "holding red_cube"
+- Number subtask ids sequentially starting at 1.
+- assigned_agent is always "arm_0".
+
+Return ONLY JSON matching the schema. No prose.

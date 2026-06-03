@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+results/scene_check*.png
+results/_*.json
+or_models.json
+results/_*.png
+ros2/

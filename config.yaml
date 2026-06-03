@@ -1,0 +1,81 @@
+# CLAMP configuration: the single source of truth for the scene, camera, and LLM settings.
+
+sim:
+  gui: false            # true -> p.GUI (needs a display); false -> p.DIRECT + TinyRenderer
+  hz: 240                # Bullet's default step rate; only call setTimeStep if this changes
+  settle_steps: 240      # ~1s of settle after a place/stack/scene build
+  use_ik: false           # true -> single-IK-pose visual polish in skills.py (no trajectories)
+
+scene:
+  plain_floor: true          # true -> plain matte ground (clean VLM input); false -> checkerboard plane.urdf
+  floor_rgba: [0.82, 0.82, 0.85, 1.0]
+  cube_half_extent: 0.025    # 5cm cubes
+  # Panda base is at the origin, facing +x; workspace is x in [0.3, 0.8], y in [-0.3, 0.3]
+  cubes:
+    - name: red_cube
+      color: red
+      rgba: [0.9, 0.1, 0.1, 1.0]
+      start_pos: [0.45, -0.20, 0.025]
+    - name: green_cube
+      color: green
+      rgba: [0.1, 0.8, 0.1, 1.0]
+      start_pos: [0.45, 0.00, 0.025]
+    - name: blue_cube
+      color: blue
+      rgba: [0.1, 0.2, 0.9, 1.0]
+      start_pos: [0.45, 0.20, 0.025]
+  bins:
+    # shallow-walled trays; darker shade than the matching cube so the VLM
+    # can tell cube from tray at a glance
+    - name: red_bin
+      color: dark red
+      rgba: [0.55, 0.05, 0.05, 1.0]
+      center: [0.65, 0.22]
+      inner_half: 0.06
+      wall_height: 0.02
+      wall_thickness: 0.008
+      base_top: 0.01
+    - name: blue_bin
+      color: dark blue
+      rgba: [0.05, 0.08, 0.5, 1.0]
+      center: [0.65, -0.22]
+      inner_half: 0.06
+      wall_height: 0.02
+      wall_thickness: 0.008
+      base_top: 0.01
+
+skills:
+  drop_height: 0.02       # cube is released this far above its resting surface
+
+camera:
+  width: 640
+  height: 480
+  target: [0.50, 0.0, 0.0]
+  distance: 0.95
+  yaw: 90                  # calibrated: +y reads image-right, -y image-left; all bodies framed
+  pitch: -55
+  fov: 55
+  near: 0.05
+  far: 3.0
+
+llm:
+  mock: true                                   # true = canned responses, zero network calls
+  base_url: "https://openrouter.ai/api/v1"     # OPENROUTER_BASE_URL env var overrides this
+  api_key_env: "OPENROUTER_API_KEY"            # name only; value is never read/logged by tooling
+  models:
+    # Picked from live OpenRouter pricing; all under the $1/M in&out cap.
+    planner: "deepseek/deepseek-v4-flash"
+    verifier: "qwen/qwen3.5-flash-02-23"
+    recovery: "deepseek/deepseek-v4-flash"
+  temperature: 0.0
+  max_repair_retries: 1
+
+failure:                 # used by the recovery-ablation tests (env/failure.py)
+  p_fail: 0.2            # per-step failure probability (probabilistic path)
+  # NOTE: the failure MODE is chosen deterministically per action in
+  # env/failure.py (_NATURAL_MODE: pick->failed_grasp, place->missed_placement,
+  # stack->toppled_stack) - there is no probabilistic mode mixture, so no
+  # per-mode weights live here (they would be dead config).
+  scripted: []           # optional deterministic override list (mode|null per step)
+
+seed: 0

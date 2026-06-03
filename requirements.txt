@@ -1,0 +1,11 @@
+# Python is pinned to 3.11 (uv venv -p 3.11): pybullet 3.2.7 ships prebuilt
+# manylinux wheels only up to cp311 - with them no C++ toolchain is needed.
+pybullet==3.2.7
+numpy>=1.26,<3      # if the pybullet wheel trips on numpy 2.x ABI, pin <2
+pydantic>=2.7,<3
+openai>=2.0,<3      # OpenRouter is a drop-in via base_url; unused while llm.mock=true
+imageio>=2.35,<3
+pyyaml>=6.0,<7
+pytest>=8.0         # the automated test suite (dev only)
+viser>=1.0,<2       # browser-based 3D operator console
+yourdfpy>=0.0.60    # loads the Panda URDF for ViserUrdf (console only)
