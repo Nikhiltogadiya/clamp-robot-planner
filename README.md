@@ -13,10 +13,13 @@
 *a **vision model checks each step from a camera image** → a second **LLM re-plans and recovers.***
 *Drive the whole thing live in your browser.*
 
+<img src="results/gif_recovery.gif" width="780" alt="Driving the console: a task is planned and executed, a cube is knocked out of its bin mid-task, and the closed loop re-plans from the current scene and recovers to success." />
 
+<sub>A real session (sped up): a task runs, a cube is <b>knocked out of its bin mid-task</b> with a sabotage click, and the loop <b>re-plans and fixes it → success</b>.</sub>
 
 </div>
 
+---
 
 ## 🧩 The problem: making a plan is easy, surviving reality is hard
 
@@ -47,6 +50,14 @@ control code. Each does exactly one job:
 Passed? Move on. Failed? *Recover* (retry or re-plan) and try again. Once every step checks out, a final **ground-truth geometry check** (kept hidden from the agents) scores real success, so a confident-but-wrong agent can't grade its own homework.
 
 The idea that makes it work: **verification is perceptual**. It's judged from an *image*, the way a human would glance at the table, so the system catches failures it was never told to look for. And because the whole goal is re-checked at the end, a sabotage at **any** moment gets caught and fixed.
+
+<div align="center">
+  <img src="results/console_frames/001_place_red_cube.png" width="250" alt="Camera frame the VLM judged: the arm has just placed the red cube in a tray." />
+  <img src="results/console_frames/003_stack_green_cube.png" width="250" alt="Camera frame the VLM judged: the green cube stacked on the red cube." />
+  <img src="results/console_frames/005_stack_green_cube.png" width="250" alt="Camera frame the VLM judged: the final arrangement after a sabotage was recovered." />
+  <br/>
+  <sub><b>Exactly what the verifier sees:</b> real camera frames from the recorded session above (a rendered photo, not the clean 3D view). Every frame the VLM judges is saved to <code>results/console_frames/</code>.</sub>
+</div>
 
 ## 📈 The result
 
